@@ -17,12 +17,14 @@
  * along with GShade.Nuke.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using System;
 using System.IO;
 using Mono.Options;
 using static System.Console;
 using static System.DateTime;
 using static System.Environment;
 using static System.Environment.SpecialFolder;
+using static System.IO.File;
 using static System.IO.Path;
 using static Miris.GShade.Nuke.Archive;
 
@@ -103,9 +105,18 @@ namespace Miris.GShade.Nuke
       OptionSet.WriteOptionDescriptions(Out);
       OptionSet.Parse(args);
 
-      Archive();
-      Uninstall();
-      Rename();
+      try
+      {
+        Archive();
+        Uninstall();
+        Rename();
+      }
+      catch (Exception e)
+      {
+        var log = Combine(GetFolderPath(Desktop), "GShade.Nuke.log");
+        WriteAllText(log, e.StackTrace);
+        WriteLine($"An error has occurred: {e.Message}. Refer to the log file for more details: {log}");
+      }
     }
   }
 }
