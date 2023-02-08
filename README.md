@@ -5,6 +5,12 @@ In light of the [recent](https://gamerant.com/final-fantasy-14-gshade-mod-twitte
 1. It will completely back up all of the GShade data to an archive, for preservation and restoration; and
 2. It will completely erase the installation files from your system, to ensure that no traces of it remain.
 
+## Usage
+
+1. Download the [latest release](https://github.com/MirisWisdom/GShade.Nuke/releases/latest) of the program. Updates won't be enforced on you!
+2. Double click the program and it will automatically start backing up your stuff and proceed with the uninstallation.
+3. During the uninstallation phase, you will be asked to confirm that the data which will be deleted is safe to delete. Type `yes` to do so.
+
 ## Backup
 
 Prior to erasure, all of your GShade data will be backed up to a ZIP archive. You will see four folders in it:
