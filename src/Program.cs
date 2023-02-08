@@ -88,6 +88,12 @@ namespace Miris.GShade.Nuke
       Create(new FileInfo(Backup), Paths.Miscellaneous(Game), "misc");
     }
 
+    private static void Rename()
+    {
+      Migrate.Presets(Game);
+      Migrate.Shaders(Game);
+    }
+
     private static void Main(string[] args)
     {
       WriteLine("GSHADE NUKE TOOL // MIRIS WISDOM");
@@ -99,6 +105,7 @@ namespace Miris.GShade.Nuke
 
       Archive();
       Uninstall();
+      Rename();
     }
   }
 }
