@@ -23,7 +23,7 @@ using static Microsoft.Win32.Registry;
 
 namespace Miris.GShade.Nuke
 {
-  public static class Infer
+  public static class Registry
   {
     public enum Type
     {
@@ -31,7 +31,7 @@ namespace Miris.GShade.Nuke
       Install
     }
 
-    public static DirectoryInfo Path(Type type)
+    public static DirectoryInfo Infer(Type type)
     {
       var key = LocalMachine.OpenSubKey(@"SOFTWARE\\GShade");
 

@@ -29,44 +29,59 @@ namespace Miris.GShade.Nuke
   {
     public static readonly string GShade = "GShade";
 
-    public static readonly List<FileInfo> Shortcuts = new()
+    /**
+     * Principal Post-Processing directories, along with presets. These are the most important user files!
+     */
+    public static List<DirectoryInfo> Shaders(DirectoryInfo root, DirectoryInfo game)
     {
-      new FileInfo(Combine(GetFolderPath(CommonDesktopDirectory), $"{GShade} Control Panel.lnk")),
-      new FileInfo(Combine(GetFolderPath(CommonDesktopDirectory), $"{GShade} Custom Shaders & Textures.lnk")),
-      new FileInfo(Combine(GetFolderPath(CommonDesktopDirectory), $"{GShade} FAQ.url"))
-    };
-
-    public static readonly List<DirectoryInfo> Directories = new()
-    {
-      new DirectoryInfo(Combine(GetFolderPath(CommonApplicationData), GShade)),
-      new DirectoryInfo(Combine(GetFolderPath(CommonPrograms),        GShade)),
-      new DirectoryInfo(Combine(GetFolderPath(ProgramFiles),          GShade)),
-      new DirectoryInfo(Combine(GetFolderPath(ProgramFilesX86),       GShade))
-    };
-
-    public static List<FileInfo> Injections()
-    {
-      return Injections(Infer.Path(Infer.Type.Game));
-    }
-
-    public static List<FileInfo> Injections(DirectoryInfo root)
-    {
-      return new List<FileInfo>
+      return new List<DirectoryInfo>
       {
-        new(Combine(root.FullName, "dxgi.dll")),
-        new(Combine(root.FullName, "d3d11.dll")),
-        new(Combine(root.FullName, "dinput8.dll"))
+        new(Combine(root.FullName, $"{GShade.ToLower()}-shaders")),
+        new(Combine(game.FullName, $"{GShade.ToLower()}-presets"))
       };
     }
 
-    public static DirectoryInfo Presets()
+    /**
+     * Installation directories, including the core directory and other system directories.
+     */
+    public static List<DirectoryInfo> Installation(DirectoryInfo root)
     {
-      return Presets(Infer.Path(Infer.Type.Game));
+      return new List<DirectoryInfo>
+      {
+        root,
+        new(Combine(GetFolderPath(CommonApplicationData), GShade)),
+        new(Combine(GetFolderPath(CommonPrograms),        GShade))
+      };
     }
 
-    public static DirectoryInfo Presets(DirectoryInfo root)
+    /**
+     * DLL files used for injection/hooking of GShade (technically ReShade) onto FFXIV or any other supported game.
+     */
+    public static List<FileInfo> Injections(DirectoryInfo game)
     {
-      return new DirectoryInfo(Combine(root.FullName, "gshade-presets"));
+      return new List<FileInfo>
+      {
+        new(Combine(game.FullName, "dxgi.dll")),
+        new(Combine(game.FullName, "d3d11.dll")),
+        new(Combine(game.FullName, "dinput8.dll"))
+      };
+    }
+
+    /**
+     * Miscellaneous files such as shortcuts, installation logs and other stuff.
+     */
+    public static List<FileInfo> Miscellaneous(DirectoryInfo game)
+    {
+      return new List<FileInfo>
+      {
+        new(Combine(GetFolderPath(CommonDesktopDirectory), $"{GShade} Control Panel.lnk")),
+        new(Combine(GetFolderPath(CommonDesktopDirectory), $"{GShade} Custom Shaders & Textures.lnk")),
+        new(Combine(GetFolderPath(CommonDesktopDirectory), $"{GShade} FAQ.url")),
+
+        new(Combine(game.FullName, "GShade.ini")),
+        new(Combine(game.FullName, "GSInstLog.txt")),
+        new(Combine(game.FullName, "notification.wav"))
+      };
     }
   }
 }

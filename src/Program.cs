@@ -20,6 +20,8 @@
 using System.IO;
 using Mono.Options;
 using static System.Console;
+using static System.DateTime;
+using static Miris.GShade.Nuke.Archive;
 
 namespace Miris.GShade.Nuke
 {
@@ -28,22 +30,29 @@ namespace Miris.GShade.Nuke
     private static readonly OptionSet OptionSet = new()
     {
       {
-        "game=|root=", "Path to the FFXIV game directory.", s =>
-        {
-          if (new DirectoryInfo(s).Exists)
-            Root = s;
-        }
+        "game=|ffxiv=", "Path to the FFXIV game directory.", s => { Game = new DirectoryInfo(s); }
+      },
+      {
+        "root=|install=", "Path to the GShade game directory.", s => { Root = new DirectoryInfo(s); }
+      },
+      {
+        "backup=|archive=", "Path to the backup archive", s => { Backup = s; }
       }
     };
 
-    private static string Root { get; set; }
+    private static DirectoryInfo Root   { get; set; } = Registry.Infer(Registry.Type.Install);
+    private static DirectoryInfo Game   { get; set; } = Registry.Infer(Registry.Type.Game);
+    private static string        Backup { get; set; } = $"{Paths.GShade}.{Now:yyyy-MM-dd-hh-mm-ss}.zip";
 
     private static void Main(string[] args)
     {
       OptionSet.WriteOptionDescriptions(Out);
       OptionSet.Parse(args);
-
-      // TODO: Backup and uninstallation logic!
+      
+      Create(new FileInfo(Backup), Paths.Shaders(Root, Game), "main");
+      Create(new FileInfo(Backup), Paths.Installation(Root),  "core");
+      Create(new FileInfo(Backup), Paths.Injections(Game),    "hook");
+      Create(new FileInfo(Backup), Paths.Miscellaneous(Game), "misc");
     }
   }
 }
