@@ -7,6 +7,15 @@
         <Nullable>enable</Nullable>
         <AssemblyName>gshade-nuke</AssemblyName>
         <RootNamespace>Miris.GShade.Nuke</RootNamespace>
+        <Company>Miris Wisdom</Company>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <OutputPath>..\bin\Debug\</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <OutputPath>..\bin\Release\</OutputPath>
     </PropertyGroup>
 
 </Project>
