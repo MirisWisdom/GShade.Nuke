@@ -85,6 +85,10 @@ namespace Miris.GShade.Nuke
 
     private static void Main(string[] args)
     {
+      WriteLine("GSHADE NUKE TOOL // MIRIS WISDOM");
+      WriteLine("================================");
+      WriteLine("github - miriswisdom/gshade.nuke");
+
       OptionSet.WriteOptionDescriptions(Out);
       OptionSet.Parse(args);
 

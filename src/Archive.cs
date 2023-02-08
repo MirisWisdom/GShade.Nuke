@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using static System.Console;
 using static System.IO.Compression.ZipArchiveMode;
 using static System.IO.Compression.ZipFile;
 using static System.IO.Path;
@@ -67,6 +68,7 @@ namespace Miris.GShade.Nuke
         {
           var path = GetRelativePath(directory.FullName, file.FullName);
           a.CreateEntryFromFile(file.FullName, Combine(prefix, parent, path));
+          WriteLine($"Archived GShade file '{file.Name}' to '{prefix}' section in the archive.");
         }
       }
     }
@@ -78,7 +80,10 @@ namespace Miris.GShade.Nuke
     {
       using var a = Open(archive.FullName, Update);
       foreach (var file in files.Where(file => file.Exists))
+      {
         a.CreateEntryFromFile(file.FullName, Combine(prefix, file.Name));
+        WriteLine($"Archived GShade file '{file.Name}' to '{prefix}' section in the archive.");
+      }
     }
   }
 }
