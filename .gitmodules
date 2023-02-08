@@ -1,0 +1,3 @@
+[submodule "ext/GShade.Assets"]
+	path = ext/GShade.Assets
+	url = ../GShade.Assets.git
