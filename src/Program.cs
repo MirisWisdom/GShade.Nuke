@@ -37,22 +37,59 @@ namespace Miris.GShade.Nuke
       },
       {
         "backup=|archive=", "Path to the backup archive", s => { Backup = s; }
+      },
+      {
+        "force", "Forcefully erase files without prompting. WARNING: DANGEROUS!", s => { Force = s != null; }
       }
     };
 
     private static DirectoryInfo Root   { get; set; } = Registry.Infer(Registry.Type.Install);
     private static DirectoryInfo Game   { get; set; } = Registry.Infer(Registry.Type.Game);
     private static string        Backup { get; set; } = $"{Paths.GShade}.{Now:yyyy-MM-dd-hh-mm-ss}.zip";
+    private static bool          Force  { get; set; }
+
+    private static void Uninstall()
+    {
+      WriteLine("The following directories and files will be deleted:");
+
+      foreach (var info in Paths.Installation(Root))
+        WriteLine($"-   {info.FullName}");
+
+      foreach (var info in Paths.Injections(Root))
+        WriteLine($"-   {info.FullName}");
+
+      foreach (var info in Paths.Miscellaneous(Root))
+        WriteLine($"-   {info.FullName}");
+
+      string confirmation = string.Empty;
+
+      while (!confirmation.Equals("yes") && !Force)
+      {
+        WriteLine("Please type YES to confirm the deletion:");
+        confirmation = ReadLine() ?? string.Empty;
+        confirmation = confirmation.ToLower();
+      }
+
+      Erase.Commit(Paths.Installation(Root));
+      Erase.Commit(Paths.Injections(Game));
+      Erase.Commit(Paths.Miscellaneous(Game));
+    }
+
+    private static void Archive()
+    {
+      Create(new FileInfo(Backup), Paths.Shaders(Root, Game), "main");
+      Create(new FileInfo(Backup), Paths.Installation(Root),  "core");
+      Create(new FileInfo(Backup), Paths.Injections(Game),    "hook");
+      Create(new FileInfo(Backup), Paths.Miscellaneous(Game), "misc");
+    }
 
     private static void Main(string[] args)
     {
       OptionSet.WriteOptionDescriptions(Out);
       OptionSet.Parse(args);
-      
-      Create(new FileInfo(Backup), Paths.Shaders(Root, Game), "main");
-      Create(new FileInfo(Backup), Paths.Installation(Root),  "core");
-      Create(new FileInfo(Backup), Paths.Injections(Game),    "hook");
-      Create(new FileInfo(Backup), Paths.Miscellaneous(Game), "misc");
+
+      Archive();
+      Uninstall();
     }
   }
 }
