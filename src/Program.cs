@@ -21,6 +21,9 @@ using System.IO;
 using Mono.Options;
 using static System.Console;
 using static System.DateTime;
+using static System.Environment;
+using static System.Environment.SpecialFolder;
+using static System.IO.Path;
 using static Miris.GShade.Nuke.Archive;
 
 namespace Miris.GShade.Nuke
@@ -43,10 +46,12 @@ namespace Miris.GShade.Nuke
       }
     };
 
-    private static DirectoryInfo Root   { get; set; } = Registry.Infer(Registry.Type.Install);
-    private static DirectoryInfo Game   { get; set; } = Registry.Infer(Registry.Type.Game);
-    private static string        Backup { get; set; } = $"{Paths.GShade}.{Now:yyyy-MM-dd-hh-mm-ss}.zip";
-    private static bool          Force  { get; set; }
+    private static DirectoryInfo Root  { get; set; } = Registry.Infer(Registry.Type.Install);
+    private static DirectoryInfo Game  { get; set; } = Registry.Infer(Registry.Type.Game);
+    private static bool          Force { get; set; }
+
+    private static string Backup { get; set; } =
+      Combine(GetFolderPath(Desktop), $"{Paths.GShade}.{Now:yyyy-MM-dd-hh-mm-ss}.zip");
 
     private static void Uninstall()
     {
