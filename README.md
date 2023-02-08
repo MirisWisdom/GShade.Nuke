@@ -33,5 +33,5 @@ The `main` folder is the one you'll care about the most. It contains your shader
 
 The official GShade uninstaller has two caveats:
 
-1. It seemingly requires you to be updated to the latest version of GShade, thereby opening up a potential attack vector to further malicious malware; and
+1. It seemingly requires you to be updated to the latest version of GShade, thereby opening up a potential attack vector to further malware; and
 2. Whether it's a partial uninstallation or unwanted side-effects, there is no guarantee that the uninstaller will do one thing to the fullest extent: remove the GShade files.
