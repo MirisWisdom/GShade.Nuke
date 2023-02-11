@@ -117,6 +117,9 @@ namespace Miris.GShade.Nuke
         WriteAllText(log, e.StackTrace);
         WriteLine($"An error has occurred: {e.Message}. Refer to the log file for more details: {log}");
       }
+
+      WriteLine("Press any key to continue...");
+      ReadLine();
     }
   }
 }
