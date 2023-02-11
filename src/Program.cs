@@ -45,12 +45,16 @@ namespace Miris.GShade.Nuke
       },
       {
         "force", "Forcefully erase files without prompting. WARNING: DANGEROUS!", s => { Force = s != null; }
+      },
+      {
+        "migrate", "Attempt GShade to ReShade migration. WARNING: EXPERIMENTAL!", s => { Migrate = s != null; }
       }
     };
 
     private static DirectoryInfo Root  { get; set; } = Registry.Infer(Registry.Type.Install);
     private static DirectoryInfo Game  { get; set; } = Registry.Infer(Registry.Type.Game);
     private static bool          Force { get; set; }
+    private static bool          Migrate { get; set; }
 
     private static string Backup { get; set; } =
       Combine(GetFolderPath(Desktop), $"{Paths.GShade}.{Now:yyyy-MM-dd-hh-mm-ss}.zip");
@@ -92,8 +96,11 @@ namespace Miris.GShade.Nuke
 
     private static void Rename()
     {
-      Migrate.Presets(Game);
-      Migrate.Shaders(Game);
+      if (!Migrate)
+        return;
+
+      Nuke.Migrate.Presets(Game);
+      Nuke.Migrate.Shaders(Game);
     }
 
     private static void Main(string[] args)
