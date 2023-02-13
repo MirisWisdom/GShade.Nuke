@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using static System.Console;
 using static System.Environment;
 using static System.Environment.SpecialFolder;
 using static System.IO.Path;
@@ -41,21 +40,12 @@ namespace Miris.GShade.Nuke
     /**
      * Attempts to figure out the XIV game directory path using the following methods:
      * 
-     * 1.  Retrieving the location path from the GShade registry key.
+     * 1.  Asserting the existence of the game in the current directory.
      * 2.  Asserting the existence of the game in the default non-Steam installation path.
-     * 3.  Asserting the existence of the game in the current directory.
+     * 3.  Retrieving the location path from the GShade registry key.
      */
     public static DirectoryInfo Game()
     {
-      try
-      {
-        return Registry.Infer(Registry.Type.Game);
-      }
-      catch (Exception e)
-      {
-        WriteLine(e.Message + "-- Attempting next XIV game path detection method.");
-      }
-
       var defaultPath = Combine(GetFolderPath(ProgramFilesX86),
         "SquareEnix",
         "FINAL FANTASY XIV - A Realm Reborn",
@@ -63,10 +53,10 @@ namespace Miris.GShade.Nuke
 
       var executables = new List<FileInfo>
       {
-        new(Combine(defaultPath,      "ffxiv.exe")),
-        new(Combine(defaultPath,      "ffxiv_dx11.exe")),
         new(Combine(CurrentDirectory, "ffxiv.exe")),
-        new(Combine(CurrentDirectory, "ffxiv_dx11.exe"))
+        new(Combine(CurrentDirectory, "ffxiv_dx11.exe")),
+        new(Combine(defaultPath,      "ffxiv.exe")),
+        new(Combine(defaultPath,      "ffxiv_dx11.exe"))
       };
 
       var path = new DirectoryInfo(string.Empty);
@@ -74,38 +64,37 @@ namespace Miris.GShade.Nuke
       foreach (var executable in executables.Where(executable => executable.Exists))
         path = executable.Directory;
 
-      if (path is not {Exists: true})
-        throw new DirectoryNotFoundException("Could not find the XIV game directory.");
+      if (path is {Exists: true})
+        return path;
 
-      return path;
+      try
+      {
+        return Registry.Infer(Registry.Type.Game);
+      }
+      catch (Exception)
+      {
+        throw new DirectoryNotFoundException("Could not find the XIV game directory.");
+      }
     }
 
     /**
      * Attempts to figure out the GShade installation directory path using the following methods:
      * 
-     * 1.  Retrieving the location path from the GShade registry key.
+     * 1.  Asserting the existence of assets in the current directory.
      * 2.  Asserting the existence of assets in the default installation path.
+     * 3.  Retrieving the location path from the GShade registry key.
      */
     public static DirectoryInfo Root()
     {
-      try
-      {
-        return Registry.Infer(Registry.Type.Install);
-      }
-      catch (Exception e)
-      {
-        WriteLine(e.Message + "-- Attempting next GShade installation path detection method.");
-      }
-
       var defaultPath = Combine(GetFolderPath(ProgramFiles),
         "GShade");
 
       var assets = new List<FileInfo>
       {
-        new(Combine(defaultPath,      "GShade32.dll")),
-        new(Combine(defaultPath,      "GShade64.dll")),
         new(Combine(CurrentDirectory, "inject32.exe")),
-        new(Combine(CurrentDirectory, "inject75.exe"))
+        new(Combine(CurrentDirectory, "inject75.exe")),
+        new(Combine(defaultPath,      "GShade32.dll")),
+        new(Combine(defaultPath,      "GShade64.dll"))
       };
 
       var path = new DirectoryInfo(string.Empty);
@@ -113,10 +102,17 @@ namespace Miris.GShade.Nuke
       foreach (var asset in assets.Where(asset => asset.Exists))
         path = asset.Directory;
 
-      if (path is not {Exists: true})
-        throw new DirectoryNotFoundException("Could not find the GShade installation directory.");
+      if (path is {Exists: true})
+        return path;
 
-      return path;
+      try
+      {
+        return Registry.Infer(Registry.Type.Install);
+      }
+      catch (Exception)
+      {
+        throw new DirectoryNotFoundException("Could not find the GShade installation directory.");
+      }
     }
 
     /**
