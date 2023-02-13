@@ -18,12 +18,9 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Mono.Options;
 using static System.Console;
-using static System.DateTime;
 using static System.Environment;
 using static System.Environment.SpecialFolder;
 using static System.IO.File;
@@ -37,13 +34,13 @@ namespace Miris.GShade.Nuke
     private static readonly OptionSet OptionSet = new()
     {
       {
-        "game=|ffxiv=", "Path to the FFXIV game directory.", s => { Game = new DirectoryInfo(s); }
+        "ffxiv=|game=", "Path to the FFXIV game directory.", s => { Game = new DirectoryInfo(s); }
       },
       {
-        "root=|install=", "Path to the GShade game directory.", s => { Root = new DirectoryInfo(s); }
+        "gshade=|root=|install=", "Path to the GShade game directory.", s => { Root = new DirectoryInfo(s); }
       },
       {
-        "backup=|archive=", "Path to the backup archive", s => { Backup = s; }
+        "backup=|archive=", "Path to the backup archive", s => { Backup = new FileInfo(s); }
       },
       {
         "force", "Forcefully erase files without prompting. WARNING: DANGEROUS!", s => { Force = s != null; }
@@ -55,11 +52,37 @@ namespace Miris.GShade.Nuke
 
     private static DirectoryInfo Root    { get; set; }
     private static DirectoryInfo Game    { get; set; }
+    private static FileInfo      Backup  { get; set; }
     private static bool          Force   { get; set; }
     private static bool          Migrate { get; set; }
 
-    private static string Backup { get; set; } =
-      Combine(GetFolderPath(Desktop), $"{Paths.GShade}.{Now:yyyy-MM-dd-hh-mm-ss}.zip");
+    private static void Main(string[] args)
+    {
+      WriteLine("GSHADE NUKE TOOL // MIRIS WISDOM");
+      WriteLine("================================");
+      WriteLine("github - miriswisdom/gshade.nuke");
+
+      OptionSet.WriteOptionDescriptions(Out);
+      OptionSet.Parse(args);
+
+      try
+      {
+        Localise();
+        Archive();
+        Uninstall();
+        Rename();
+      }
+      catch (Exception e)
+      {
+        var log = Combine(GetFolderPath(Desktop), "GShade.Nuke.log");
+        WriteAllText(log, e.StackTrace);
+        WriteLine($"An error has occurred: {e.Message}. Refer to the log file for more details: {log}");
+        Exit(1);
+      }
+
+      WriteLine("Press any key to continue...");
+      ReadLine();
+    }
 
     private static void Uninstall()
     {
@@ -90,10 +113,10 @@ namespace Miris.GShade.Nuke
 
     private static void Archive()
     {
-      Create(new FileInfo(Backup), Paths.Shaders(Root, Game), "main");
-      Create(new FileInfo(Backup), Paths.Installation(Root),  "core");
-      Create(new FileInfo(Backup), Paths.Injections(Game),    "hook");
-      Create(new FileInfo(Backup), Paths.Miscellaneous(Game), "misc");
+      Create(Backup, Paths.Shaders(Root, Game), "main");
+      Create(Backup, Paths.Installation(Root),  "core");
+      Create(Backup, Paths.Injections(Game),    "hook");
+      Create(Backup, Paths.Miscellaneous(Game), "misc");
     }
 
     private static void Rename()
@@ -105,36 +128,11 @@ namespace Miris.GShade.Nuke
       Nuke.Migrate.Shaders(Game);
     }
 
-    private static void Main(string[] args)
-    {
-      WriteLine("GSHADE NUKE TOOL // MIRIS WISDOM");
-      WriteLine("================================");
-      WriteLine("github - miriswisdom/gshade.nuke");
-
-      OptionSet.WriteOptionDescriptions(Out);
-      OptionSet.Parse(args);
-
-      try
-      {
-        Localise();
-        Archive();
-        Uninstall();
-        Rename();
-      }
-      catch (Exception e)
-      {
-        var log = Combine(GetFolderPath(Desktop), "GShade.Nuke.log");
-        WriteAllText(log, e.StackTrace);
-        WriteLine($"An error has occurred: {e.Message}. Refer to the log file for more details: {log}");
-        Exit(1);
-      }
-
-      WriteLine("Press any key to continue...");
-      ReadLine();
-    }
-
     private static void Localise()
     {
+      if (!Backup.Exists)
+        Backup = Paths.Backup();
+
       if (!Game.Exists)
         try
         {
@@ -144,7 +142,7 @@ namespace Miris.GShade.Nuke
         {
           WriteLine("XIV path not found. Perhaps you've ran the GShade uninstaller before?");
           WriteLine("Either move gshade-nuke.exe to your XIV 'game' folder, or the path:");
-          WriteLine(@"    gshade-nuke.exe --game 'C:\Path\To\XIV\game\folder'");
+          WriteLine(@"    gshade-nuke.exe --ffxiv 'C:\Path\To\XIV\game\folder'");
           WriteLine("GShade Nuke will still try to delete any other known GShade files.");
           ReadLine();
         }
@@ -158,7 +156,7 @@ namespace Miris.GShade.Nuke
         {
           WriteLine("GShade path not found. Perhaps you've ran the GShade uninstaller before?");
           WriteLine("Either manually delete the GShade folder, or specify the GShade install path:");
-          WriteLine(@"    gshade-nuke.exe --install 'C:\Path\To\GShade\installation'");
+          WriteLine(@"    gshade-nuke.exe --gshade 'C:\Path\To\GShade\installation'");
           WriteLine("GShade Nuke will still try to delete any other known GShade files.");
           ReadLine();
         }

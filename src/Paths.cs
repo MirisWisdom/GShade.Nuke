@@ -25,12 +25,18 @@ using static System.Console;
 using static System.Environment;
 using static System.Environment.SpecialFolder;
 using static System.IO.Path;
+using static System.DateTime;
 
 namespace Miris.GShade.Nuke
 {
   public static class Paths
   {
     public static readonly string GShade = "GShade";
+
+    public static FileInfo Backup()
+    {
+      return new FileInfo(Combine(GetFolderPath(Desktop), $"{GShade}.{Now:yyyy-MM-dd-hh-mm-ss}.zip"));
+    }
 
     /**
      * Attempts to figure out the XIV game directory path using the following methods:
