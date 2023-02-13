@@ -18,7 +18,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Mono.Options;
 using static System.Console;
 using static System.DateTime;
@@ -51,9 +53,9 @@ namespace Miris.GShade.Nuke
       }
     };
 
-    private static DirectoryInfo Root  { get; set; } = Registry.Infer(Registry.Type.Install);
-    private static DirectoryInfo Game  { get; set; } = Registry.Infer(Registry.Type.Game);
-    private static bool          Force { get; set; }
+    private static DirectoryInfo Root    { get; set; }
+    private static DirectoryInfo Game    { get; set; }
+    private static bool          Force   { get; set; }
     private static bool          Migrate { get; set; }
 
     private static string Backup { get; set; } =
@@ -114,6 +116,7 @@ namespace Miris.GShade.Nuke
 
       try
       {
+        Localise();
         Archive();
         Uninstall();
         Rename();
@@ -123,10 +126,42 @@ namespace Miris.GShade.Nuke
         var log = Combine(GetFolderPath(Desktop), "GShade.Nuke.log");
         WriteAllText(log, e.StackTrace);
         WriteLine($"An error has occurred: {e.Message}. Refer to the log file for more details: {log}");
+        Exit(1);
       }
 
       WriteLine("Press any key to continue...");
       ReadLine();
+    }
+
+    private static void Localise()
+    {
+      if (!Game.Exists)
+        try
+        {
+          Game = Paths.Game();
+        }
+        catch (Exception)
+        {
+          WriteLine("XIV path not found. Perhaps you've ran the GShade uninstaller before?");
+          WriteLine("Either move gshade-nuke.exe to your XIV 'game' folder, or the path:");
+          WriteLine(@"    gshade-nuke.exe --game 'C:\Path\To\XIV\game\folder'");
+          WriteLine("GShade Nuke will still try to delete any other known GShade files.");
+          ReadLine();
+        }
+
+      if (!Root.Exists)
+        try
+        {
+          Root = Paths.Root();
+        }
+        catch (Exception)
+        {
+          WriteLine("GShade path not found. Perhaps you've ran the GShade uninstaller before?");
+          WriteLine("Either manually delete the GShade folder, or specify the GShade install path:");
+          WriteLine(@"    gshade-nuke.exe --install 'C:\Path\To\GShade\installation'");
+          WriteLine("GShade Nuke will still try to delete any other known GShade files.");
+          ReadLine();
+        }
     }
   }
 }
