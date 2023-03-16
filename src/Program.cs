@@ -121,7 +121,8 @@ namespace Miris.GShade.Nuke
       catch (Exception e)
       {
         var log = Combine(GetFolderPath(Desktop), "GShade.Nuke.log");
-        WriteAllText(log, e.StackTrace);
+        AppendAllText(log, e.StackTrace);
+        AppendAllText(log, e.InnerException.StackTrace);
         WriteLine($"An error has occurred: {e.Message}. Refer to the log file for more details: {log}");
       }
 
